@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/scrapper.rb'
+
+new_results = Scrapper.new
+
+ options =puts "Would you like to?
+    1. View all properties
+    2. Get the total number of properties for rent
+    3. Get highest property value
+    4. Export to csv
+    Choose any number from above
+    
+    "
+
+    new_results.export_csv
+    
+# move = new_results.user_options(gets.chomp).to_i
+#      move
+# puts new_results.menu_options(options,move)
