@@ -6,7 +6,9 @@ require 'byebug'
 require 'csv'
 
 class Scrapper
-  attr_reader :properties
+
+  attr_reader :properties 
+  # attr_accessor :property_prices
   def initialize
     @url = 'https://www.buyrentkenya.com/flats-apartments-for-rent'
     @unparsed_page = HTTParty.get(@url)
@@ -20,22 +22,34 @@ class Scrapper
   end
 
   def last_page
-    @last_page = 10
+    @last_page = 6
   end
-
   def count_properties
     count = @total
     puts 'Total properties for rent: '
     puts count
   end
- 
-  def property_details
+
+  def set_up_details
     @property_listings.each do |i|
       property = {
-        property_title: i.css('h2.property-title').text,
-        property_location: i.css('div.property-location').text,
-        address: i.css('address.property-address').text,
-        price: i.css('a.item-price').text
+        property_title: i.css('h2.property-title').text.gsub("\n", ""),
+        property_location: i.css('div.property-location').text.gsub("\n", ""),
+        address: i.css('address.property-address').text.gsub("\n", ""),
+        price: i.css('a.item-price').text.gsub("\n", "")       
+      }
+      @properties << property
+      @property_prices << property[:price].split(" ")[1].gsub(",", "").to_i
+    end
+  end
+
+  def property_details
+    @property_listings.each do |property_listing|
+      property = {
+        property_title: property_listing.css('h2.property-title').text.gsub("\n", ""),
+        property_location: property_listing.css('div.property-location').text.gsub("\n", ""),
+        address: property_listing.css('address.property-address').text.gsub("\n", ""),
+        price: property_listing.css('a.item-price').text.gsub("\n", "")       
       }
       @properties << property
       puts "Property title #{property[:property_title]}"
@@ -44,7 +58,9 @@ class Scrapper
       puts "Price #{property[:price]}"
       puts ''
     end
+    @properties
   end
+  
 
   def pagination
     pagination_url = "https://www.buyrentkenya.com/flats-apartments-for-rent?page=#{@page}"
@@ -65,29 +81,22 @@ class Scrapper
   end
 
   def menu_options(answer)
-  case answer
+    case answer
     when 1
       property_details
     when 2
       count_properties
     when 3
-      one_property
-    when 4
       export_csv
     end
-
   end
 
   def user_options(move)
-    unless move.to_i.between?(1, 4)
-      return false
+    until move.to_i.between?(1, 4)
+      puts 'Invalid choice! Choose between 1 and 4'
       move = gets.chomp
     end
-    move
+    menu_options(move)
   end
-
-
 end
-
-
 
