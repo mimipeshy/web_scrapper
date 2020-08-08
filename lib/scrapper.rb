@@ -1,13 +1,10 @@
-# frozen_string_literal: true
-
 require 'nokogiri'
 require 'httparty'
 require 'byebug'
 require 'csv'
 
 class Scrapper
-
-  attr_reader :properties 
+  attr_reader :properties
   # attr_accessor :property_prices
   def initialize
     @url = 'https://www.buyrentkenya.com/flats-apartments-for-rent'
@@ -22,45 +19,14 @@ class Scrapper
   end
 
   def last_page
-    @last_page = 6
+    @last_page = 2
   end
+
   def count_properties
     count = @total
     puts 'Total properties for rent: '
     puts count
   end
-
-  def set_up_details
-    @property_listings.each do |i|
-      property = {
-        property_title: i.css('h2.property-title').text.gsub("\n", ""),
-        property_location: i.css('div.property-location').text.gsub("\n", ""),
-        address: i.css('address.property-address').text.gsub("\n", ""),
-        price: i.css('a.item-price').text.gsub("\n", "")       
-      }
-      @properties << property
-      @property_prices << property[:price].split(" ")[1].gsub(",", "").to_i
-    end
-  end
-
-  def property_details
-    @property_listings.each do |property_listing|
-      property = {
-        property_title: property_listing.css('h2.property-title').text.gsub("\n", ""),
-        property_location: property_listing.css('div.property-location').text.gsub("\n", ""),
-        address: property_listing.css('address.property-address').text.gsub("\n", ""),
-        price: property_listing.css('a.item-price').text.gsub("\n", "")       
-      }
-      @properties << property
-      puts "Property title #{property[:property_title]}"
-      puts "Location #{property[:property_location]}"
-      puts "More info  #{property[:address]}"
-      puts "Price #{property[:price]}"
-      puts ''
-    end
-    @properties
-  end
-  
 
   def pagination
     pagination_url = "https://www.buyrentkenya.com/flats-apartments-for-rent?page=#{@page}"
@@ -76,8 +42,8 @@ class Scrapper
 
   def export_csv
     pagination while @page <= last_page
-    CSV.open('reserved.csv', 'w') { |csv| csv << @properties }
     puts 'exporting .....'
+    CSV.open('reserved.csv', 'w') { |csv| csv << @properties }
   end
 
   def menu_options(answer)
@@ -88,7 +54,7 @@ class Scrapper
       count_properties
     when 3
       export_csv
-    end
+      end
   end
 
   def user_options(move)
@@ -98,5 +64,23 @@ class Scrapper
     end
     menu_options(move)
   end
-end
 
+  private
+
+  def property_details
+    @property_listings.each do |property_listing|
+      property = {
+        property_title: property_listing.css('h2.property-title').text.gsub("\n", ''),
+        property_location: property_listing.css('div.property-location').text.gsub("\n", ''),
+        address: property_listing.css('address.property-address').text.gsub("\n", ''),
+        price: property_listing.css('a.item-price').text.gsub("\n", '')
+      }
+      @properties << property
+      puts "Property title: #{property[:property_title]}"
+      puts "Location: #{property[:property_location]}"
+      puts "More info:  #{property[:address]}"
+      puts "Price: #{property[:price]}"
+      puts ''
+    end
+  end
+end
