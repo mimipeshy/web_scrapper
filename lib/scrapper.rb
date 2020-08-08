@@ -1,17 +1,22 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 require 'httparty'
 require 'byebug'
 require 'csv'
 
 class Scrapper
-  attr_reader :properties
+
+  attr_reader :properties , :property_prices
   # attr_accessor :property_prices
   def initialize
     @url = 'https://www.buyrentkenya.com/flats-apartments-for-rent'
     @unparsed_page = HTTParty.get(@url)
     @parsed_page = Nokogiri::HTML(@unparsed_page)
-    @properties = []
+    @properties = Array.new
+    @property_prices = Array.new
     @property_listings = @parsed_page.css('div.result-card-item')
+    set_up_details
     @per_page = @property_listings.count
     @total = @parsed_page.css('a.filter-item').text.split(' ')[3].gsub(/[()]/, '').to_i
     @last_page = (@total.to_f / @per_page.to_f).round
@@ -21,12 +26,49 @@ class Scrapper
   def last_page
     @last_page = 2
   end
-
   def count_properties
     count = @total
     puts 'Total properties for rent: '
     puts count
   end
+
+  def set_up_details
+    @property_listings.each do |i|
+      property = {
+        property_title: i.css('h2.property-title').text.gsub("\n", ""),
+        property_location: i.css('div.property-location').text.gsub("\n", ""),
+        address: i.css('address.property-address').text.gsub("\n", ""),
+        price: i.css('a.item-price').text.gsub("\n", "")       
+      }
+      @properties << property
+      @property_prices << property[:price].split(" ")[1].gsub(",", "").to_i
+    end
+  end
+
+  def property_details
+    @property_listings.each do |i|
+      property = {
+        property_title: i.css('h2.property-title').text.gsub("\n", ""),
+        property_location: i.css('div.property-location').text.gsub("\n", ""),
+        address: i.css('address.property-address').text.gsub("\n", ""),
+        price: i.css('a.item-price').text.gsub("\n", "")       
+      }
+      @properties << property
+      puts "Property title #{property[:property_title]}"
+      puts "Location #{property[:property_location]}"
+      puts "More info  #{property[:address]}"
+      puts "Price #{property[:price]}"
+      puts ''
+    end
+  end
+
+  def highest_price
+    highest = @property_prices.max
+    p "The highest property price in KES is #{highest}"
+
+  end
+
+  
 
   def pagination
     pagination_url = "https://www.buyrentkenya.com/flats-apartments-for-rent?page=#{@page}"
@@ -42,8 +84,8 @@ class Scrapper
 
   def export_csv
     pagination while @page <= last_page
-    puts 'exporting .....'
     CSV.open('reserved.csv', 'w') { |csv| csv << @properties }
+    puts 'exporting .....'
   end
 
   def menu_options(answer)
@@ -53,6 +95,8 @@ class Scrapper
     when 2
       count_properties
     when 3
+      highest_price
+    when 4
       export_csv
       end
   end
@@ -64,23 +108,5 @@ class Scrapper
     end
     menu_options(move)
   end
-
-  private
-
-  def property_details
-    @property_listings.each do |property_listing|
-      property = {
-        property_title: property_listing.css('h2.property-title').text.gsub("\n", ''),
-        property_location: property_listing.css('div.property-location').text.gsub("\n", ''),
-        address: property_listing.css('address.property-address').text.gsub("\n", ''),
-        price: property_listing.css('a.item-price').text.gsub("\n", '')
-      }
-      @properties << property
-      puts "Property title: #{property[:property_title]}"
-      puts "Location: #{property[:property_location]}"
-      puts "More info:  #{property[:address]}"
-      puts "Price: #{property[:price]}"
-      puts ''
-    end
-  end
 end
+

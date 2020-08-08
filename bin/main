@@ -7,7 +7,8 @@ new_results = Scrapper.new
 puts "Would you like to?
     1. View all properties
     2. Get the total number of properties for rent
-    3. Export to csv
+    3. highest price
+    4. Export to csv
     Choose any number from above
     "
 move = gets.chomp.to_i
