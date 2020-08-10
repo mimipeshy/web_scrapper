@@ -13,3 +13,5 @@ puts "Would you like to?
     "
 move = gets.chomp.to_i
 new_results.menu_options(new_results.user_options(move))
+
+# new_results.count

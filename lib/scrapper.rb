@@ -39,9 +39,6 @@ class Scrapper
     puts pagination_url
     puts "Page : #{@page}"
     puts ''
-    pagination_unparsed_page = HTTParty.get(pagination_url)
-    pagination_parsed_page = Nokogiri::HTML(pagination_unparsed_page)
-    pagination_parsed_page.css('div.result-card-item')
     save_property
     puts @page += 1
   end
