@@ -11,6 +11,7 @@ describe Scrapper do
   let(:parsed_page) { Nokogiri::HTML(unparsed_page) }
   let(:property_listings) { parsed_page.css('div.result-card-item') }
   let(:first_property) {property_listings.first}
+  let(:total){ parsed_page.css('a.filter-item').text.split(' ')[3].gsub(/[()]/,'')}
   let(:new_results) { Scrapper.new }
   let(:property) do {
     property_title: first_property.css('h2.property-title').text.gsub("\n", ""),
@@ -28,7 +29,7 @@ describe Scrapper do
 
   describe '#count_properties' do
     it 'counts the total number of properties' do
-      expect(new_results.count_properties).to eql(4683)
+      expect(new_results.count_properties).to eql(total.to_i)
     end
   end
 

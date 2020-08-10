@@ -17,29 +17,13 @@ class Scrapper
     @per_page = @property_listings.count
     @total = @parsed_page.css('a.filter-item').text.split(' ')[3].gsub(/[()]/, '').to_i
     @page = 1
-  end
-
-  def last_page
-    last_page = 2
+    @last_page =2
   end
 
   def count_properties
-    count_properties = @total
-    count_properties 
+   @total
   end
 
-    def save_property
-    @property_listings.each do |i|
-      property = {
-        property_title: i.css('h2.property-title').text.gsub("\n", ''),
-        property_location: i.css('div.property-location').text.gsub("\n", ''),
-        address: i.css('address.property-address').text.gsub("\n", ''),
-        price: i.css('a.item-price').text.gsub("\n", ''),
-        url: 'https://www.buyrentkenya.com' + i.css('a')[0].attributes['href'].value
-      }
-      @properties << property
-    end
-  end
   def highest_price
     save_property
     @property_prices << properties[0][:price]
@@ -65,7 +49,7 @@ class Scrapper
   end
 
   def export_csv
-    pagination while @page <= last_page
+    pagination while @page <= @last_page
     CSV.open('reserved.csv', 'w') { |csv| csv << @properties }
     puts 'exporting .....'
   end
@@ -89,5 +73,19 @@ class Scrapper
       move = gets.chomp
     end
     move.to_i
+  end
+
+  private
+  def save_property
+    @property_listings.each do |i|
+      property = {
+        property_title: i.css('h2.property-title').text.gsub("\n", ''),
+        property_location: i.css('div.property-location').text.gsub("\n", ''),
+        address: i.css('address.property-address').text.gsub("\n", ''),
+        price: i.css('a.item-price').text.gsub("\n", ''),
+        url: 'https://www.buyrentkenya.com' + i.css('a')[0].attributes['href'].value
+      }
+      @properties << property
+    end
   end
 end
