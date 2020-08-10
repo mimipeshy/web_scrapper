@@ -41,7 +41,7 @@ class Scrapper
     puts ''
     pagination_unparsed_page = HTTParty.get(pagination_url)
     pagination_parsed_page = Nokogiri::HTML(pagination_unparsed_page)
-    pagination_property_listings = pagination_parsed_page.css('div.result-card-item')
+    pagination_parsed_page.css('div.result-card-item')
     save_property
     puts @page += 1
   end
