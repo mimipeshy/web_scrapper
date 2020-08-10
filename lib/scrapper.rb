@@ -8,7 +8,6 @@ require 'csv'
 class Scrapper
 
   attr_reader :properties , :property_prices
-  # attr_accessor :property_prices
   def initialize
     @url = 'https://www.buyrentkenya.com/flats-apartments-for-rent'
     @unparsed_page = HTTParty.get(@url)
@@ -33,10 +32,6 @@ class Scrapper
 
 
   def highest_price
-    # set_up_details
-    # property =[]
-    # @properties << property
-    # @property_prices << property[price].split(" ")[1].gsub(",", "").to_i
     highest = @property_prices.max
     puts highest
   end
