@@ -15,11 +15,11 @@ class Scrapper
     @per_page = @property_listings.count
     @total = @parsed_page.css('a.filter-item').text.split(' ')[3].gsub(/[()]/, '').to_i
     @page = 1
-    @last_page =2
+    @last_page = 2
   end
 
   def count_properties
-   @total
+    @total
   end
 
   def highest_price
@@ -28,7 +28,7 @@ class Scrapper
     highest = @property_prices.max
     highest
   end
- 
+
   def property_details
     save_property
     properties[0]
@@ -55,11 +55,11 @@ class Scrapper
   def menu_options(answer)
     case answer
     when 1
-    p  property_details
+      p property_details
     when 2
-    p count_properties
+      p count_properties
     when 3
-    p highest_price
+      p highest_price
     when 4
       export_csv
     end
@@ -74,6 +74,7 @@ class Scrapper
   end
 
   private
+
   def save_property
     @property_listings.each do |i|
       property = {
