@@ -6,7 +6,7 @@ require 'byebug'
 require 'csv'
 
 class Scrapper
-  attr_reader :properties, :property_prices
+  attr_reader :properties
   def initialize
     @url = 'https://www.buyrentkenya.com/flats-apartments-for-rent'
     @unparsed_page = HTTParty.get(@url)
@@ -77,7 +77,7 @@ class Scrapper
     when 2
     p count_properties
     when 3
-      highest_price
+    p highest_price
     when 4
       export_csv
     end
