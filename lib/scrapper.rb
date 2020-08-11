@@ -6,40 +6,38 @@ require 'csv'
 class Scrapper
   attr_reader :properties
   def initialize
-    @url = 'https://www.buyrentkenya.com/flats-apartments-for-rent'
-    @unparsed_page = HTTParty.get(@url)
-    @parsed_page = Nokogiri::HTML(@unparsed_page)
+    @url = "https://www.buyrentkenya.com/flats-apartments-for-rent?page=#{@page}" 
     @properties = []
     @property_prices = []
-    @property_listings = @parsed_page.css('div.result-card-item')
-    @per_page = @property_listings.count
-    @total = @parsed_page.css('a.filter-item').text.split(' ')[3].gsub(/[()]/, '').to_i
     @page = 1
     @last_page = 2
   end
 
   def count_properties
-    @total
+    total_pages
   end
 
   def highest_price
-    save_property
+    save_property(listings)
     @property_prices << properties[0][:price]
     highest = @property_prices.max
     highest
   end
 
   def property_details
-    save_property
+    save_property(listings)
     properties[0]
   end
 
   def pagination
-    pagination_url = "https://www.buyrentkenya.com/flats-apartments-for-rent?page=#{@page}"
+    pagination_url = @url
+    unparsed_page
+    parsed_page
+    listings
     puts pagination_url
     puts "Page : #{@page}"
     puts ''
-    save_property
+    save_property(listings)
     puts @page += 1
   end
 
@@ -72,8 +70,8 @@ class Scrapper
 
   private
 
-  def save_property
-    @property_listings.each do |i|
+  def save_property(listings)
+    listings.each do |i|
       property = {
         property_title: i.css('h2.property-title').text.gsub("\n", ''),
         property_location: i.css('div.property-location').text.gsub("\n", ''),
@@ -83,5 +81,24 @@ class Scrapper
       }
       @properties << property
     end
+  end
+
+  def unparsed_page
+    unparsed_page = HTTParty.get(@url)
+    unparsed_page
+  end
+  def parsed_page
+    parsed_page = Nokogiri::HTML(unparsed_page)
+    parsed_page
+  end
+
+  def listings
+    property_listings = parsed_page.css('div.result-card-item')
+    property_listings
+  end
+
+  def total_pages
+    total = parsed_page.css('a.filter-item').text.split(' ')[3].gsub(/[()]/, '').to_i
+    total
   end
 end
