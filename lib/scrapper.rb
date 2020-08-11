@@ -6,7 +6,7 @@ require 'csv'
 class Scrapper
   attr_reader :properties
   def initialize
-    @url = "https://www.buyrentkenya.com/flats-apartments-for-rent?page=#{@page}" 
+    @url = "https://www.buyrentkenya.com/flats-apartments-for-rent?page=#{@page}"
     @properties = []
     @property_prices = []
     @page = 1
@@ -87,6 +87,7 @@ class Scrapper
     unparsed_page = HTTParty.get(@url)
     unparsed_page
   end
+
   def parsed_page
     parsed_page = Nokogiri::HTML(unparsed_page)
     parsed_page
